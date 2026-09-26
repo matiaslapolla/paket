@@ -120,3 +120,7 @@ pose forces you to decide which state uses it.
 
 No bundler of its own: anything that compiles TS/TSX (Vite, Next, esbuild) takes it as is. The demo was built with
 `esbuild demo/demo.ts --bundle --format=iife` and inlined into an HTML page.
+
+## License
+
+MIT. Use it, change it, ship it in your product; just keep the credit to [Matias Lapolla](https://matiaslapolla.com).
