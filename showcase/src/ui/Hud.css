@@ -1,0 +1,101 @@
+/* Sheet layout. The canvas sits underneath (.stage, z-index 0); the centre stays clear for the model. */
+
+.hud {
+  --edge: calc(var(--sheet-inset) + 10px);
+  --gap: 8px;
+  --head: 50px;
+  --head-r: 40px;
+  --col-l: 288px;
+  --col-r: 288px;
+  --tb-w: 540px;
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.hud-frame {
+  position: absolute;
+  inset: var(--sheet-inset);
+  border: 1px solid var(--line-strong);
+}
+
+.hud-top {
+  position: absolute;
+  top: var(--edge);
+  left: var(--edge);
+  right: var(--edge);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.hud-brand { min-width: 0; }
+.hud-wordmark {
+  margin: 0;
+  font-size: var(--t-xl);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: 0.16em;
+}
+.hud-subtitle { margin: 2px 0 0; font-size: var(--t-xs); color: var(--ink-muted); }
+.hud-lang { flex: none; pointer-events: auto; }
+.hud-lang .seg-opt { min-width: 44px; background: var(--surface); }
+
+.hud-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
+.hud-left {
+  position: absolute;
+  top: calc(var(--edge) + var(--head));
+  bottom: var(--edge);
+  left: var(--edge);
+  width: var(--col-l);
+}
+.hud-bottom { display: flex; flex-direction: column; gap: var(--gap); margin-top: auto; }
+
+.hud-right {
+  position: absolute;
+  top: calc(var(--edge) + var(--head-r));
+  right: var(--edge);
+  bottom: var(--edge);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--gap);
+}
+.hud-stack { flex: 0 1 auto; width: var(--col-r); }
+.hud-drawing {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  width: var(--tb-w);
+  margin-top: auto;
+}
+.hud-drawing > .panel { animation: hud-enter var(--dur) var(--ease-out); }
+.hud-left,
+.hud-right { transition: opacity var(--dur) var(--ease-out); }
+.hud .is-fitting { opacity: 0; }
+
+@media (max-width: 1279.98px) {
+  .hud { --col-l: 264px; --col-r: 272px; --tb-w: 500px; }
+}
+@media (max-width: 1099.98px) {
+  .hud { --col-l: 248px; --col-r: 248px; --tb-w: var(--col-r); }
+  .hud .switches { grid-template-columns: minmax(0, 1fr); }
+  .hud .seg-opt { padding-inline: 6px; }
+}
+@media (max-width: 719.98px) {
+  .hud { --edge: calc(var(--sheet-inset) + 8px); }
+  .hud-wordmark { font-size: var(--t-lg); }
+  .hud-lang .seg-opt { min-height: 40px; }
+}

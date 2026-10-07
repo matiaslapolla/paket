@@ -1,0 +1,60 @@
+.hud .colourways { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
+.hud .colourway { display: grid; gap: 4px; padding: 4px; }
+.hud .colourway-strip { display: flex; height: 12px; border: 1px solid var(--line); }
+.hud .colourway-strip > span { flex: 1; }
+.hud .colourway-strip > span:first-child { flex: 2; }
+.hud .colourway[aria-pressed='true'] .colourway-strip { border-color: var(--accent-fg); }
+.hud .colourway-name { font-size: var(--t-xs); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.hud .colours { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
+.hud .colour { display: grid; gap: 2px; justify-items: stretch; cursor: pointer; }
+.hud .colour-name { font-size: var(--t-xs); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hud .colour-hex { font-size: var(--t-xs); color: var(--ink-muted); }
+.hud .colour input {
+  width: 100%;
+  height: 28px;
+  padding: 0;
+  background: none;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+.hud .colour input:hover { border-color: var(--ink); }
+.hud .colour input::-webkit-color-swatch-wrapper { padding: 2px; }
+.hud .colour input::-webkit-color-swatch { border: 0; border-radius: 1px; }
+.hud .colour input::-moz-color-swatch { border: 0; border-radius: 1px; }
+
+.hud .pitch-value { color: var(--ink); }
+.hud .overall { flex-wrap: wrap; }
+
+.hud .range {
+  width: 100%;
+  height: 20px;
+  margin: 0;
+  background: none;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.hud .range::-webkit-slider-runnable-track { height: 2px; background: var(--line-strong); }
+.hud .range::-moz-range-track { height: 2px; background: var(--line-strong); }
+.hud .range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  margin-top: -5px;
+  background: var(--ink);
+  border: 0;
+  border-radius: var(--radius);
+}
+.hud .range::-moz-range-thumb { width: 12px; height: 12px; background: var(--ink); border: 0; border-radius: var(--radius); }
+.hud .range:hover::-webkit-slider-thumb { transform: scale(1.15); }
+.hud .range:active::-webkit-slider-thumb { transform: scale(0.9); }
+
+@media (max-width: 719.98px), (pointer: coarse) {
+  .hud .colourway { min-height: 44px; }
+  .hud .colour input { height: 40px; }
+  .hud .range { height: 40px; }
+  .hud .range::-webkit-slider-thumb { width: 20px; height: 20px; margin-top: -9px; }
+  .hud .range::-moz-range-thumb { width: 20px; height: 20px; }
+}

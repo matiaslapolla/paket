@@ -1,0 +1,5 @@
+.hud .exports { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.hud .exports li { display: grid; grid-template-columns: 52px minmax(0, 1fr); align-items: center; gap: 10px; }
+.hud .export-btn { font-family: var(--font-data); font-size: var(--t-xs); letter-spacing: 0.04em; }
+.hud .export-hint { font-size: var(--t-xs); line-height: 1.35; color: var(--ink-muted); }
+.hud .export-hint.is-error { color: var(--error); }

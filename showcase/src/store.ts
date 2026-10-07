@@ -17,6 +17,10 @@ export const COLORWAYS: Record<string, Palette> = {
 
 export const PITCH_RANGE = { min: 2, max: 12, step: 0.5 } as const;
 
+/** Pixels of the viewport the HUD covers on each side; the camera frames the model in what is left. */
+export interface Insets { top: number; right: number; bottom: number; left: number }
+export const NO_INSETS: Insets = { top: 0, right: 0, bottom: 0, left: 0 };
+
 export interface ShowcaseState {
   lang: Lang;
   palette: Palette;
@@ -33,6 +37,7 @@ export interface ShowcaseState {
   exploded: boolean;
   showDims: boolean;
   showSeams: boolean;
+  insets: Insets;
 
   setLang(l: Lang): void;
   setPalette(p: Partial<Palette>): void;
@@ -42,10 +47,32 @@ export interface ShowcaseState {
   setPitch(mm: number): void;
   setView(v: ViewName): void;
   toggle(k: 'ortho' | 'turntable' | 'exploded' | 'showDims' | 'showSeams'): void;
+  setInsets(i: Insets): void;
 }
 
 const reducedMotion = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 const initialLang: Lang = typeof navigator !== 'undefined' && navigator.language?.toLowerCase().startsWith('zh') ? 'zh' : 'en';
+
+/** Shareable starting state, e.g. `?lang=zh&mode=prototype&finish=metal&colorway=ember&pitch=6&view=front&exploded`. */
+function fromUrl(): Partial<ShowcaseState> {
+  if (typeof location === 'undefined') return {};
+  const q = new URLSearchParams(location.search);
+  const pick = <T extends string>(key: string, allowed: readonly T[]) => { const v = q.get(key) as T | null; return v && allowed.includes(v) ? v : undefined; };
+  const pitch = Number(q.get('pitch'));
+  const colorway = q.get('colorway');
+  const out: Partial<ShowcaseState> = {
+    lang: pick('lang', ['en', 'zh'] as const),
+    renderMode: pick('mode', ['blueprint', 'prototype', 'hybrid'] as const),
+    finish: pick('finish', ['matte', 'gloss', 'metal'] as const),
+    material: pick('material', ['abs', 'pla', 'resin', 'zinc'] as const),
+    view: pick('view', ['iso', 'front', 'side', 'top'] as const),
+    pitch: pitch >= PITCH_RANGE.min && pitch <= PITCH_RANGE.max ? pitch : undefined,
+    palette: colorway && colorway in COLORWAYS ? COLORWAYS[colorway] : undefined,
+    exploded: q.has('exploded') || undefined,
+    ortho: q.has('ortho') || undefined,
+  };
+  return Object.fromEntries(Object.entries(out).filter(([, v]) => v !== undefined));
+}
 
 export const useShowcase = create<ShowcaseState>(set => ({
   lang: initialLang,
@@ -61,6 +88,8 @@ export const useShowcase = create<ShowcaseState>(set => ({
   exploded: false,
   showDims: true,
   showSeams: true,
+  insets: NO_INSETS,
+  ...fromUrl(),
 
   setLang: lang => set({ lang }),
   setPalette: p => set(s => ({ palette: { ...s.palette, ...p } })),
@@ -70,4 +99,5 @@ export const useShowcase = create<ShowcaseState>(set => ({
   setPitch: mm => set({ pitch: Math.min(PITCH_RANGE.max, Math.max(PITCH_RANGE.min, mm)) }),
   setView: view => set(s => ({ view, viewNonce: s.viewNonce + 1 })),
   toggle: k => set(s => ({ [k]: !s[k] }) as Partial<ShowcaseState>),
+  setInsets: insets => set(s => (Object.entries(insets).every(([k, v]) => Math.abs(s.insets[k as keyof Insets] - v) < 1) ? s : { insets })),
 }));

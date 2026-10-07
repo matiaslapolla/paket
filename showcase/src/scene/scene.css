@@ -1,0 +1,32 @@
+/* the stage is its own stacking context, so labels drawn by the scene never cover the HUD */
+.stage { position: fixed; inset: 0; z-index: 0; background: var(--paper); }
+.stage canvas { touch-action: none; }
+
+.stage-labels { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.scene-label { position: absolute; top: 0; left: 0; pointer-events: none; user-select: none; will-change: transform; }
+
+.scene-label.dim {
+  display: inline-flex; align-items: baseline; gap: 2px;
+  padding: 1px 4px;
+  background: var(--paper);
+  color: var(--ink);
+  font: 500 var(--t-xs) / 1 var(--font-data);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.scene-label.dim small { font-size: 0.85em; color: var(--ink-muted); }
+
+.scene-label.callout { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+.callout-n {
+  display: grid; place-items: center;
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  font: 500 var(--t-xs) / 1 var(--font-data);
+}
+.callout-name { font-size: var(--t-xs); color: var(--ink); background: var(--paper); padding: 1px 4px; }
+
+.no-webgl {
+  position: fixed; inset: 0; display: grid; place-items: center; margin: 0; padding: 24px;
+  text-align: center; color: var(--ink-muted);
+}

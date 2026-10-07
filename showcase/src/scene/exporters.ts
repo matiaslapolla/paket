@@ -3,14 +3,7 @@ import { STLExporter } from 'three/examples/jsm/exporters/STLExporter.js';
 import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter.js';
 import { useShowcase } from '../store';
 import { PART_ORDER, meshVoxels, restVoxels, type FaceGroup, type PaletteKey } from '../model/voxels';
-
-function geometry(g: FaceGroup) {
-  const geo = new THREE.BufferGeometry();
-  geo.setAttribute('position', new THREE.BufferAttribute(g.positions, 3));
-  geo.setAttribute('normal', new THREE.BufferAttribute(g.normals, 3));
-  geo.setIndex(new THREE.BufferAttribute(g.indices, 1));
-  return geo;
-}
+import { faceGeometry as geometry } from './geometry';
 
 function download(blob: Blob, name: string) {
   const a = document.createElement('a');
@@ -60,5 +53,8 @@ export const registerCanvas = (c: HTMLCanvasElement) => { canvas = c; };
 
 /** The current view as it is on screen (the canvas keeps its drawing buffer for this). */
 export function exportPNG() {
-  canvas?.toBlob(b => b && download(b, `${stamp()}.png`), 'image/png');
+  return new Promise<void>((resolve, reject) => {
+    if (!canvas) return reject(new Error('no canvas'));
+    canvas.toBlob(b => { if (!b) return reject(new Error('empty canvas')); download(b, `${stamp()}.png`); resolve(); }, 'image/png');
+  });
 }

@@ -21,6 +21,8 @@ export const paket = createPaket(engineHost, {
   scene: SCENES[status.scene],
   start: { x: START_X },
   palette: useShowcase.getState().palette,
+  // the source panel sits on the drawing, so its scene uses the sheet's blues
+  colors: { bg: '#011f4b', surface: '#052451', line: '#1d4b8a', lineStrong: '#4f7dbb', muted: '#a4c2dc' },
   draggable: true,
   // window-wide so arrow keys drive Paket wherever focus is; the engine ignores keys typed into form fields
   keyboard: { target: 'window' },

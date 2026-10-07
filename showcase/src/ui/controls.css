@@ -1,0 +1,143 @@
+/* Panels and the control primitives every HUD surface is built from. Selected / active is the only use of --accent. */
+
+.hud .panel {
+  pointer-events: auto;
+  min-width: 0;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.hud .panel-head { margin: 0; font: inherit; }
+.hud .panel-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  min-height: 28px;
+  padding: 0 12px;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  color: var(--ink);
+  font-size: var(--t-xs);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: left;
+}
+html:lang(zh) .hud .panel-toggle { letter-spacing: 0.04em; }
+.hud .panel-toggle:hover { background: var(--surface-2); }
+.hud .panel-toggle:active { background: var(--paper-deep); }
+.hud .panel-toggle:focus-visible { outline-offset: -2px; }
+.hud .chevron { flex: none; color: var(--ink-muted); transition: transform var(--dur) var(--ease-out); }
+.hud .panel-toggle[aria-expanded='false'] .chevron { transform: rotate(-90deg); }
+.hud .panel-body {
+  display: grid;
+  gap: 10px;
+  padding: 2px 12px 12px;
+  animation: hud-enter var(--dur) var(--ease-out);
+}
+.hud .panel-body[hidden] { display: none; }
+
+@keyframes hud-enter {
+  from { opacity: 0; transform: translateY(-4px); }
+}
+
+.hud .field { display: grid; gap: 4px; min-width: 0; }
+.hud .field-row { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.hud .field-label { font-size: var(--t-xs); color: var(--ink-muted); }
+
+/* buttons and segmented options share one state model */
+.hud .btn,
+.hud .seg-opt {
+  min-height: 28px;
+  padding: 4px 8px;
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  line-height: 1.2;
+  text-align: center;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.hud .btn:hover,
+.hud .seg-opt:hover { background: var(--surface-2); border-color: var(--line-strong); }
+.hud .btn:active,
+.hud .seg-opt:active { background: var(--paper-deep); }
+.hud .btn[aria-pressed='true'],
+.hud .seg-opt[aria-pressed='true'] { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+.hud .btn:disabled,
+.hud .btn:disabled:hover { background: transparent; border-color: var(--line); color: var(--ink-faint); cursor: not-allowed; }
+
+.hud .seg { display: flex; min-width: 0; }
+.hud .seg-opt { position: relative; flex: 1 1 auto; margin-left: -1px; border-radius: 0; white-space: nowrap; }
+.hud .seg-opt:first-child { margin-left: 0; border-radius: var(--radius) 0 0 var(--radius); }
+.hud .seg-opt:last-child { border-radius: 0 var(--radius) var(--radius) 0; }
+.hud .seg-opt:hover,
+.hud .seg-opt[aria-pressed='true'] { z-index: 1; }
+.hud .seg-opt:focus-visible { z-index: 2; }
+
+.hud .switch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  min-height: 28px;
+  padding: 0;
+  background: none;
+  border: 0;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.hud .switch-track {
+  position: relative;
+  flex: none;
+  width: 26px;
+  height: 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+}
+.hud .switch-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 8px;
+  height: 8px;
+  background: var(--ink-muted);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+.hud .switch:hover .switch-track { border-color: var(--ink); }
+.hud .switch:active .switch-knob { transform: scale(0.75); }
+.hud .switch[aria-pressed='true'] .switch-track { background: var(--accent); border-color: var(--accent); }
+.hud .switch[aria-pressed='true'] .switch-knob { background: var(--accent-fg); transform: translateX(12px); }
+.hud .switch[aria-pressed='true']:active .switch-knob { transform: translateX(12px) scale(0.75); }
+
+.hud .switches { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 16px; }
+
+.hud kbd {
+  display: inline-block;
+  min-width: 18px;
+  padding: 0 4px;
+  font: 400 var(--t-xs) / 16px var(--font-data);
+  text-align: center;
+  color: var(--ink);
+  border: 1px solid var(--line-strong);
+  border-bottom-width: 2px;
+  border-radius: var(--radius);
+}
+.hud code { font-family: var(--font-data); font-size: 0.95em; color: var(--ink); }
+
+/* touch layouts: every target at least 40px */
+@media (max-width: 719.98px), (pointer: coarse) {
+  .hud .btn,
+  .hud .seg-opt,
+  .hud .switch,
+  .hud .panel-toggle { min-height: 40px; }
+}

@@ -1,0 +1,48 @@
+/* Title block and parts list: drawing furniture, so hairline cells, sans labels, tabular figures. */
+
+.hud .panel-tb,
+.hud .panel-bom { border-color: var(--line-strong); }
+.hud .panel-tb .panel-body,
+.hud .panel-bom .panel-body { padding: 0; gap: 0; }
+
+.hud .tb { overflow: hidden; border-top: 1px solid var(--line-strong); }
+.hud .tb-grid { display: grid; margin: -1px 0 0 -1px; }
+.hud .tb-wide .tb-grid { grid-template-columns: max-content repeat(3, minmax(0, 1fr)); }
+.hud .tb-narrow .tb-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.hud .tb-narrow .tb-project,
+.hud .tb-narrow .tb-overall { grid-column: span 2; }
+.hud .tb-cell {
+  display: grid;
+  align-content: start;
+  gap: 1px;
+  min-width: 0;
+  padding: 5px 10px 6px;
+  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+}
+.hud .tb-cell dt { font-size: var(--t-xs); line-height: 1.3; color: var(--ink-muted); }
+.hud .tb-cell dd { margin: 0; line-height: 1.35; color: var(--ink); overflow-wrap: anywhere; }
+.hud .tb-project dd { font-size: var(--t-md); font-weight: 600; letter-spacing: 0.14em; }
+
+.hud .bom-wrap { overflow-x: auto; border-top: 1px solid var(--line-strong); }
+.hud .bom { width: 100%; border-collapse: collapse; }
+.hud .bom th,
+.hud .bom td { padding: 3px 8px; text-align: left; vertical-align: middle; white-space: nowrap; }
+.hud .bom thead th { font-size: var(--t-xs); font-weight: 400; color: var(--ink-muted); border-bottom: 1px solid var(--line); }
+.hud .bom tbody th { font-weight: 400; }
+.hud .bom tbody tr + tr > * { border-top: 1px solid var(--line); }
+.hud .bom tfoot > tr > * { border-top: 1px solid var(--line-strong); font-weight: 500; }
+.hud .bom .num { text-align: right; }
+.hud .bom .bom-no { width: 1%; padding-right: 0; }
+.hud .balloon {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  font-size: var(--t-xs);
+  line-height: 1;
+  border: 1px solid var(--ink);
+  border-radius: 50%;
+}
+.hud .swatches { display: inline-flex; gap: 2px; vertical-align: middle; }
+.hud .swatches > span { width: 10px; height: 10px; border: 1px solid var(--line-strong); }

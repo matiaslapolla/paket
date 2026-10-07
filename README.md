@@ -14,6 +14,7 @@ src/
   react/Paket.tsx  <Paket /> with a ref to the controller
   index.ts         exports
 demo/demo.ts       the playground page, built on the public API
+showcase/          the 3D blueprint showcase (its own Vite app)
 ```
 
 ## React
@@ -119,6 +120,22 @@ const wave: Preset = { name: 'Wave', steps: [{ ms: 400, eyes: 'left' }, { ms: 60
 `sprite.ts` defines each part as pixels `[x, y, paletteKey]`. To change the design, edit the ASCII rows; arms are defined
 for the left side and mirrored. The available poses per part are typed (`EyePose`, `LegPose`, `ArmPose`), so adding a new
 pose forces you to decide which state uses it.
+
+## 3D showcase
+
+`showcase/` is a separate Vite app (React Three Fiber) that presents Paket as a manufacturable object on a blueprint
+sheet: a voxel model extruded at runtime from `src/sprite.ts`, driven live by the real engine through `getPose()`.
+It has blueprint, prototype and hybrid renders, isometric/front/side/top views with an orthographic toggle, an exploded
+view with a bill of materials, palette and finish customisation, voxel pitch in mm, and STL/GLB/PNG export. English
+and Simplified Chinese; no third-party requests at runtime.
+
+```sh
+pnpm --dir showcase install
+pnpm --dir showcase dev        # http://localhost:5173
+pnpm --dir showcase build      # static site in showcase/dist
+```
+
+The starting state can be linked: `?lang=zh&mode=prototype&finish=metal&colorway=ember&pitch=6&view=front&exploded&ortho`.
 
 ## Build
 
