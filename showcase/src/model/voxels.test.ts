@@ -13,7 +13,7 @@ describe('meshVoxels', () => {
     expect(segments(m.seams)).toBe(0);
   });
 
-  it('turns the ring between two same-colour voxels into seams, not edges', () => {
+  it('turns the ring between two same-color voxels into seams, not edges', () => {
     const m = meshVoxels([{ x: 0, y: 0, z: 0, key: 'body' }, { x: 1, y: 0, z: 0, key: 'body' }]);
     expect(quads(m.faces.body)).toBe(10);
     // unit segments: the box outline is 16 of them (the long edges are two each)
@@ -21,7 +21,7 @@ describe('meshVoxels', () => {
     expect(segments(m.seams)).toBe(4);
   });
 
-  it('keeps a colour boundary as a feature edge', () => {
+  it('keeps a color boundary as a feature edge', () => {
     const m = meshVoxels([{ x: 0, y: 0, z: 0, key: 'body' }, { x: 1, y: 0, z: 0, key: 'shade' }]);
     expect(segments(m.edges)).toBe(20);
     expect(segments(m.seams)).toBe(0);

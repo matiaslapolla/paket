@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import type { EffectName } from '../../../src/core';
-import { PRESETS, SCENES, engineHost, paket, playEffect, playPreset, setScene, useEngineStatus } from '../engine';
+import { PRESETS, SCENES, engineHost, paket, playPreset, setScene, useEngineStatus } from '../engine';
 import { useT, type I18nKey } from '../i18n';
 import { Group, Segmented } from './controls';
 import './Motion.css';
@@ -49,7 +49,7 @@ export function MotionControls() {
       <Group label={t('motion.effects')}>
         <div className="effects">
           {EFFECTS.map(e => (
-            <button key={e.name} type="button" className="btn" aria-pressed={e.lasts ? status.effect === e.name : undefined} onClick={() => playEffect(e.name)}>
+            <button key={e.name} type="button" className="btn" aria-pressed={e.lasts ? status.effect === e.name : undefined} onClick={() => paket.effect(e.name)}>
               {t(e.label)}
             </button>
           ))}

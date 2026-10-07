@@ -14,7 +14,11 @@ function shown(o: THREE.Object3D | null): boolean {
  * A text label pinned to a point in the scene, kept at a constant pixel size like the lettering on a drawing.
  * Plain DOM moved every frame: no React root per label, and it reads crisply at any zoom.
  */
-export function Label({ position, children: text, kind, n }: { position: [number, number, number]; children: string; kind: 'dim' | 'callout'; n?: number }) {
+type LabelProps = { position: [number, number, number]; children: string } & ({ kind: 'dim'; unit: string } | { kind: 'callout'; n: number });
+
+export function Label(props: LabelProps) {
+  const { position, children: text, kind } = props;
+  const detail = props.kind === 'dim' ? props.unit : String(props.n);
   const anchor = useRef<THREE.Group>(null);
   const camera = useThree(s => s.camera);
   const size = useThree(s => s.size);
@@ -29,15 +33,14 @@ export function Label({ position, children: text, kind, n }: { position: [number
   useEffect(() => {
     node.replaceChildren();
     if (kind === 'callout') {
-      const num = document.createElement('span'); num.className = 'callout-n'; num.textContent = String(n);
+      const num = document.createElement('span'); num.className = 'callout-n'; num.textContent = detail;
       const name = document.createElement('span'); name.className = 'callout-name'; name.textContent = text;
       node.append(num, name);
     } else {
-      const [value, unit] = text.split(' ');
-      const small = document.createElement('small'); small.textContent = unit ?? '';
-      node.append(value, small);
+      const unit = document.createElement('small'); unit.textContent = detail;
+      node.append(text, unit);
     }
-  }, [node, kind, text, n]);
+  }, [node, kind, text, detail]);
 
   useEffect(() => {
     labelLayer.el?.appendChild(node);

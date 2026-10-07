@@ -1,4 +1,4 @@
-import { PARTS, type Palette, type PartName, type Frame } from '../../../src/sprite';
+import { DEFAULT_PALETTE, PARTS, SPRITE_W, type Palette, type PartName, type Frame } from '../../../src/sprite';
 
 /**
  * The 3D twin is extruded from the sprite at runtime: every pixel of every pose frame becomes a column of voxels.
@@ -6,13 +6,18 @@ import { PARTS, type Palette, type PartName, type Frame } from '../../../src/spr
  */
 
 export type PaletteKey = keyof Palette;
+export const PALETTE_KEYS = Object.keys(DEFAULT_PALETTE) as PaletteKey[];
+/** the LEDs: they sit flush with the face and give off light */
+export const isLit = (k: PaletteKey) => k === 'eye' || k === 'glow';
+/** The sprite's centre: 8 voxels from either side, and 8 above the feet in the engine's transform. */
+export const CENTRE = SPRITE_W / 2;
 /** A unit cube occupying [x, x+1] × [y, y+1] × [z, z+1]. */
 export interface Voxel { x: number; y: number; z: number; key: PaletteKey }
 export interface FaceGroup { positions: Float32Array; normals: Float32Array; indices: Uint32Array }
 export interface VoxelMesh {
-  /** exposed faces, one group per palette key so colours can change without rebuilding */
+  /** exposed faces, one group per palette key so colors can change without rebuilding */
   faces: Partial<Record<PaletteKey, FaceGroup>>;
-  /** feature edges: silhouette, creases and colour boundaries, as segment pairs */
+  /** feature edges: silhouette, creases and color boundaries, as segment pairs */
   edges: Float32Array;
   /** the remaining voxel seams, for the construction-line overlay */
   seams: Float32Array;
@@ -38,8 +43,8 @@ export function frameVoxels(part: PartName, frame: Frame): Voxel[] {
       const front = z === z1 - 1;
       // the visor is recessed one voxel; eyes and glow sit flush with the face, in front of the visor
       if (key === 'visor' && front) continue;
-      const k: PaletteKey = key === 'visor' ? (z === z1 - 2 ? 'visor' : 'body') : key === 'eye' || key === 'glow' ? (front ? key : 'body') : key;
-      out.push({ x: col - 8, y: 14 - row, z, key: k });
+      const k: PaletteKey = key === 'visor' ? (z === z1 - 2 ? 'visor' : 'body') : isLit(key) ? (front ? key : 'body') : key;
+      out.push({ x: col - CENTRE, y: 14 - row, z, key: k });
     }
   }
   return out;
@@ -74,7 +79,7 @@ export function meshVoxels(voxels: Voxel[]): VoxelMesh {
         for (const c of quad) { g.p.push(...c); g.n.push(...n); }
         g.i.push(base, base + 1, base + 2, base, base + 2, base + 3);
 
-        // An edge is a feature unless the face carries on, coplanar and in the same colour, past it.
+        // An edge is a feature unless the face carries on, coplanar and in the same color, past it.
         const sides: [number, number, number[], number[]][] = [[u, -1, corner(0, 0), corner(0, 1)], [u, 1, corner(1, 0), corner(1, 1)], [w, -1, corner(0, 0), corner(1, 0)], [w, 1, corner(0, 1), corner(1, 1)]];
         for (const [ax, s, a, b] of sides) {
           const nb = [...o]; nb[ax] += s;
@@ -104,7 +109,7 @@ export const PIVOTS: Record<PartName, [number, number]> = Object.fromEntries(PAR
   const px = Object.values(PARTS[part]).flat();
   const xs = px.map(p => p[0]), ys = px.map(p => p[1]);
   const cx = (Math.min(...xs) + Math.max(...xs) + 1) / 2, cy = (Math.min(...ys) + Math.max(...ys) + 1) / 2;
-  return [part, [cx - 8, 15 - cy]];
+  return [part, [cx - CENTRE, 15 - cy]];
 })) as Record<PartName, [number, number]>;
 
 export function restVoxels(part: PartName): Voxel[] {

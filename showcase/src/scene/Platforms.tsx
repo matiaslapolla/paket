@@ -1,9 +1,10 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import * as THREE from 'three';
 import type { Platform } from '../../../src/core';
 import { paket, useEngineStatus, WORLD } from '../engine';
 import { useShowcase } from '../store';
-import { INK, PAPER, toSceneX, toSceneY } from './twin';
+import { INK, PAPER } from '../tokens';
+import { toSceneX, toSceneY } from './twin';
 
 const THICK = 3, DEPTH = 16;
 
@@ -17,6 +18,7 @@ function Slab({ p, solid }: { p: Platform; solid: boolean }) {
     const supports = new THREE.BufferGeometry().setFromPoints([[l, under], [l, floor], [r, under], [r, floor]].map(([x, y]) => new THREE.Vector3(x, y, f)));
     return { box, edges, supports };
   }, [p.w, top]);
+  useEffect(() => () => { box.dispose(); edges.dispose(); supports.dispose(); }, [box, edges, supports]);
   return (
     <group position={[toSceneX(p.x) + p.w / 2, top - THICK / 2, 0]}>
       <mesh geometry={box}>
@@ -38,6 +40,7 @@ function Bounds() {
     const x0 = toSceneX(0), x1 = toSceneX(WORLD.width);
     return new THREE.BufferGeometry().setFromPoints([[x0, -12], [x0, 12], [x1, -12], [x1, 12]].map(([x, z]) => new THREE.Vector3(x, 0.02, z)));
   }, []);
+  useEffect(() => () => geometry.dispose(), [geometry]);
   return (
     <lineSegments geometry={geometry} onUpdate={l => l.computeLineDistances()}>
       <lineDashedMaterial color={INK} transparent opacity={0.4} dashSize={1.2} gapSize={0.8} />

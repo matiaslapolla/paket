@@ -9,7 +9,7 @@ import { Footprint } from './Footprint';
 import { Paket3D } from './Paket3D';
 import { Platforms } from './Platforms';
 import { registerCanvas } from './exporters';
-import { INK, PAPER, PAPER_DEEP } from './twin';
+import { HAIRLINE, HAIRLINE_STRONG, INK, PAPER, PAPER_DEEP } from '../tokens';
 import { labelLayer } from './Label';
 import './scene.css';
 
@@ -55,10 +55,10 @@ export function Stage() {
           infiniteGrid
           cellSize={1}
           cellThickness={0.6}
-          cellColor="#1d4b8a"
+          cellColor={HAIRLINE}
           sectionSize={8}
           sectionThickness={1}
-          sectionColor="#4f7dbb"
+          sectionColor={HAIRLINE_STRONG}
           fadeDistance={170}
           fadeStrength={1.4}
         />

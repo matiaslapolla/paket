@@ -87,18 +87,18 @@ const en = {
   'toggle.dims': 'Dimensions',
   'toggle.seams': 'Voxel seams',
 
-  'custom.colourway': 'Colourway',
-  'colourway.senda': 'Senda',
-  'colourway.ember': 'Ember',
-  'colourway.moss': 'Moss',
-  'colourway.ink': 'Ink',
-  'colourway.snow': 'Snow',
-  'custom.colours': 'Colours',
-  'colour.body': 'Body',
-  'colour.shade': 'Trim',
-  'colour.visor': 'Visor',
-  'colour.eye': 'Eyes',
-  'colour.glow': 'Glow',
+  'custom.colorway': 'Colourway',
+  'colorway.senda': 'Senda',
+  'colorway.ember': 'Ember',
+  'colorway.moss': 'Moss',
+  'colorway.ink': 'Ink',
+  'colorway.snow': 'Snow',
+  'custom.colors': 'Colours',
+  'color.body': 'Body',
+  'color.shade': 'Trim',
+  'color.visor': 'Visor',
+  'color.eye': 'Eyes',
+  'color.glow': 'Glow',
   'custom.finish': 'Finish',
   'finish.matte': 'Matte',
   'finish.gloss': 'Gloss',
@@ -138,7 +138,7 @@ const en = {
   'bom.voxels': 'Voxels',
   'bom.volume': 'Vol. cm³',
   'bom.mass': 'Mass g',
-  'bom.colours': 'Colours',
+  'bom.colors': 'Colours',
   'bom.total': 'Total',
 } as const;
 
@@ -229,18 +229,18 @@ const zh: Record<I18nKey, string> = {
   'toggle.dims': '尺寸标注',
   'toggle.seams': '体素接缝',
 
-  'custom.colourway': '配色',
-  'colourway.senda': 'Senda',
-  'colourway.ember': '余烬橙',
-  'colourway.moss': '苔藓绿',
-  'colourway.ink': '墨黑',
-  'colourway.snow': '雪白',
-  'custom.colours': '颜色',
-  'colour.body': '机身',
-  'colour.shade': '饰边',
-  'colour.visor': '面罩',
-  'colour.eye': '眼睛',
-  'colour.glow': '发光',
+  'custom.colorway': '配色',
+  'colorway.senda': 'Senda',
+  'colorway.ember': '余烬橙',
+  'colorway.moss': '苔藓绿',
+  'colorway.ink': '墨黑',
+  'colorway.snow': '雪白',
+  'custom.colors': '颜色',
+  'color.body': '机身',
+  'color.shade': '饰边',
+  'color.visor': '面罩',
+  'color.eye': '眼睛',
+  'color.glow': '发光',
   'custom.finish': '表面处理',
   'finish.matte': '哑光',
   'finish.gloss': '高光',
@@ -280,13 +280,16 @@ const zh: Record<I18nKey, string> = {
   'bom.voxels': '体素',
   'bom.volume': '体积 cm³',
   'bom.mass': '质量 g',
-  'bom.colours': '颜色',
+  'bom.colors': '颜色',
   'bom.total': '合计',
 };
 
 const TABLES: Record<Lang, Record<I18nKey, string>> = { en, zh };
 
-export function translate(lang: Lang, key: I18nKey, vars?: Record<string, string | number>): string {
+/** BCP 47 tag per language, for <html lang>, lang attributes and Intl number formats. */
+export const LOCALE: Record<Lang, string> = { en: 'en', zh: 'zh-CN' };
+
+function translate(lang: Lang, key: I18nKey, vars?: Record<string, string | number>): string {
   const s = TABLES[lang][key] ?? en[key];
   return vars ? s.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? `{${k}}`)) : s;
 }

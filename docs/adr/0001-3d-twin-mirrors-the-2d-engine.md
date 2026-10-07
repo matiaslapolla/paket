@@ -21,4 +21,7 @@ model every animation frame.
 - Any other renderer (canvas, WebGL, native) can mirror the engine the same way.
 - 3D-only motion (intro extrusion, exploded view, turntable, yaw toward the travel direction) is layered on top
   of the pose, never written back into the engine.
+- One pose value is reinterpreted rather than copied: the engine scatters disassembled parts across its 256-wide
+  stage, which would leave the tight 3D frame. The twin compresses the horizontal offset and turns part of it into
+  depth; vertical motion is kept so parts still land on the floor.
 - The engine keeps running its SVG even when only the 3D view matters; the cost is one small SVG per page.

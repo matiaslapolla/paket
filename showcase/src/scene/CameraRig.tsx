@@ -3,8 +3,8 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { CameraControls } from '@react-three/drei';
 import * as THREE from 'three';
 import { useShallow } from 'zustand/react/shallow';
-import { useShowcase, type Insets, type ViewName } from '../store';
-import { DEG, damp, reducedMotion, twin } from './twin';
+import { reducedMotion, useShowcase, type Insets, type ViewName } from '../store';
+import { DEG, damp, twin } from './twin';
 
 /** azimuth, polar. ISO is the true isometric direction, so with the orthographic toggle it is a real isometric view. */
 const VIEWS: Record<ViewName, [number, number]> = {
@@ -69,22 +69,16 @@ export function CameraRig({ grid }: { grid: React.RefObject<THREE.Mesh | null> }
     if (useShowcase.getState().turntable) useShowcase.setState({ turntable: false });
   }, [view, viewNonce]);
 
-  useEffect(() => {
-    const c = ref.current;
-    if (!c) return;
-    const zoom = ortho ? ORTHO_ZOOM : 1;
-    const distance = (c.distance / (c.camera.zoom || 1)) * zoom;
-    c.zoomTo(zoom, !reducedMotion);
-    c.dollyTo(distance, !reducedMotion);
-  }, [ortho]);
-
+  // Framing is computed, never read back from the camera: toggling ortho or exploded mid-transition stays exact.
   useEffect(() => {
     const c = ref.current;
     if (!c || !size.height) return;
+    const zoom = ortho ? ORTHO_ZOOM : 1;
     // the exploded assembly is about twice as tall as Paket
     const room = exploded ? 1.45 : 1;
-    c.dollyTo(fitDistance(size.width, size.height, insets) * room * (useShowcase.getState().ortho ? ORTHO_ZOOM : 1), !reducedMotion);
-  }, [size.width, size.height, insets, exploded]);
+    c.zoomTo(zoom, !reducedMotion);
+    c.dollyTo(fitDistance(size.width, size.height, insets) * room * zoom, !reducedMotion);
+  }, [size.width, size.height, insets, exploded, ortho]);
 
   useFrame((_, dt) => {
     const c = ref.current;
@@ -110,5 +104,5 @@ export function CameraRig({ grid }: { grid: React.RefObject<THREE.Mesh | null> }
     if (mat?.uniforms?.fadeDistance) mat.uniforms.fadeDistance.value = d * 2.6;
   });
 
-  return <CameraControls ref={ref} makeDefault minDistance={14} maxDistance={1400} truckSpeed={0} smoothTime={0.32} />;
+  return <CameraControls ref={ref} makeDefault minDistance={14} maxDistance={5000} truckSpeed={0} smoothTime={0.32} />;
 }

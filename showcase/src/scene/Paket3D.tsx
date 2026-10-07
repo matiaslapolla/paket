@@ -8,13 +8,15 @@ import { LineSegmentsGeometry } from 'three/examples/jsm/lines/LineSegmentsGeome
 import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js';
 import type { Palette, PartName } from '../../../src/sprite';
 import { paket } from '../engine';
-import { MODEL, PART_ORDER, PIVOTS, type PaletteKey, type VoxelMesh } from '../model/voxels';
-import { useShowcase, type Finish, type RenderMode } from '../store';
+import { CENTRE, MODEL, PALETTE_KEYS, PART_ORDER, PIVOTS, isLit, type PaletteKey, type VoxelMesh } from '../model/voxels';
+import { reducedMotion, useShowcase, type Finish, type RenderMode } from '../store';
+import { surface } from './materials';
 import { useT } from '../i18n';
 import { faceGeometry } from './geometry';
 import { Dimensions } from './Dimensions';
 import { Label } from './Label';
-import { DEG, INK, PAPER_DEEP, damp, reducedMotion, toSceneX, toSceneY, twin } from './twin';
+import { INK, PAPER_DEEP } from '../tokens';
+import { DEG, damp, toSceneX, toSceneY, twin } from './twin';
 
 /* ---------- geometry: built once per pose frame, shared by every look ---------- */
 
@@ -38,8 +40,6 @@ function frameGeometry(mesh: VoxelMesh): FrameGeometry {
 /* ---------- looks: one material set per render mode and finish ---------- */
 
 interface Look { fills: Record<PaletteKey, THREE.MeshBasicMaterial | THREE.MeshStandardMaterial>; edge: LineMaterial; hidden: LineMaterial; seam: THREE.LineBasicMaterial; edgeOpacity: number }
-const KEYS: PaletteKey[] = ['body', 'shade', 'visor', 'eye', 'glow'];
-const LIT = (k: PaletteKey) => k === 'eye' || k === 'glow';
 /** eyes are painted brighter than 1.0 so only they cross the bloom threshold */
 const HDR = 2.4;
 // fills sit a hair behind their edges, so edges win the depth test and hidden edges can test against fills
@@ -47,13 +47,10 @@ const OFFSET = { polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits
 
 function makeLook(mode: RenderMode, finish: Finish): Look {
   const fills = {} as Look['fills'];
-  for (const k of KEYS) {
-    if (mode === 'blueprint') fills[k] = new THREE.MeshBasicMaterial({ ...OFFSET, transparent: true, opacity: LIT(k) ? 1 : 0.16 });
-    else if (LIT(k)) fills[k] = new THREE.MeshBasicMaterial(OFFSET);
-    else if (k === 'visor') fills[k] = new THREE.MeshPhysicalMaterial({ ...OFFSET, roughness: 0.12, clearcoat: 1, clearcoatRoughness: 0.05 });
-    else if (finish === 'gloss') fills[k] = new THREE.MeshPhysicalMaterial({ ...OFFSET, roughness: 0.34, clearcoat: 1, clearcoatRoughness: 0.08 });
-    else if (finish === 'metal') fills[k] = new THREE.MeshStandardMaterial({ ...OFFSET, roughness: 0.28, metalness: 0.9 });
-    else fills[k] = new THREE.MeshStandardMaterial({ ...OFFSET, roughness: 0.85 });
+  for (const k of PALETTE_KEYS) {
+    if (mode === 'blueprint') fills[k] = new THREE.MeshBasicMaterial({ ...OFFSET, transparent: true, opacity: isLit(k) ? 1 : 0.16 });
+    else if (isLit(k)) fills[k] = new THREE.MeshBasicMaterial(OFFSET);
+    else fills[k] = new THREE.MeshPhysicalMaterial({ ...OFFSET, ...surface(k, finish) });
   }
   const hybrid = mode === 'hybrid';
   const edgeOpacity = hybrid ? 0.7 : 1;
@@ -65,9 +62,9 @@ function makeLook(mode: RenderMode, finish: Finish): Look {
 }
 
 function paint(look: Look, palette: Palette) {
-  for (const k of KEYS) {
+  for (const k of PALETTE_KEYS) {
     const c = look.fills[k].color.set(palette[k]);
-    if (LIT(k)) c.multiplyScalar(HDR);
+    if (isLit(k)) c.multiplyScalar(HDR);
   }
 }
 
@@ -151,6 +148,9 @@ function Part({ part, look, mode, seams, exploded, refs }: { part: PartName; loo
 
 /* ---------- the twin ---------- */
 
+/** Negative priorities run before the default 0 without taking over rendering, so the twin moves before anything reads it. */
+const TWIN_FIRST = -2;
+
 const easeInOut = (k: number) => (k < 0.5 ? 4 * k ** 3 : 1 - (-2 * k + 2) ** 3 / 2);
 
 export function Paket3D() {
@@ -184,7 +184,7 @@ export function Paket3D() {
 
     const e = (twin.explode = reducedMotion ? +exploded : damp(twin.explode, +exploded, 5, dt));
     const lift = toSceneY(pose.y);
-    root.current.position.set(toSceneX(pose.x) + 8, lift + 8 + EXPLODE_LIFT * e, 0);
+    root.current.position.set(toSceneX(pose.x) + CENTRE, lift + CENTRE + EXPLODE_LIFT * e, 0);
     root.current.visible = pose.opacity > 0.3;
     const moving = state === 'walk' || state === 'jump' || state === 'fall';
     root.current.rotation.y = damp(root.current.rotation.y, moving ? pose.facing * 0.4 : 0, 6, dt);
@@ -195,15 +195,15 @@ export function Paket3D() {
     PART_ORDER.forEach((part, i) => {
       const r = parts[part];
       if (!r.group) return;
-      const p = pose.parts[part], [px, py] = PIVOTS[part], x = EXPLODE[part];
-      r.group.position.set(px + p.dx * SCATTER_X + x[0] * e, py - p.dy + x[1] * e, p.dx * SCATTER_Z * (i % 2 ? 1 : -1) + x[2] * e);
+      const p = pose.parts[part], [px, py] = PIVOTS[part], away = EXPLODE[part];
+      r.group.position.set(px + p.dx * SCATTER_X + away[0] * e, py - p.dy + away[1] * e, p.dx * SCATTER_Z * (i % 2 ? 1 : -1) + away[2] * e);
       r.group.rotation.z = -p.rot * DEG;
       for (const name in r.frames) { const f = r.frames[name]; if (f) f.visible = name === p.frame; }
     });
     if (dims.current) dims.current.visible = twin.extrude >= 1 && e < 0.05 && !effect;
 
     twin.x = root.current.position.x; twin.y = root.current.position.y; twin.lift = lift;
-  });
+  }, TWIN_FIRST);
 
   return (
     <group
@@ -213,7 +213,7 @@ export function Paket3D() {
       onPointerOut={() => { document.body.style.cursor = ''; }}
     >
       <group ref={spin}>
-        <group ref={body} position={[0, -8, 0]}>
+        <group ref={body} position={[0, -CENTRE, 0]}>
           {PART_ORDER.map(part => (
             <Part key={part} part={part} look={look} mode={renderMode} seams={showSeams} exploded={exploded} refs={parts[part]} />
           ))}

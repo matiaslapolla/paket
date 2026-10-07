@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { NO_INSETS, useShowcase, type Lang } from '../store';
-import { useT } from '../i18n';
+import { useShowcase, type Lang } from '../store';
+import { LOCALE, useT } from '../i18n';
 import { Panel, Segmented } from './controls';
 import { KeyLegend, MotionControls, SourceView } from './Motion';
 import { ViewControls } from './View';
@@ -21,7 +21,7 @@ export function Hud() {
   const mobile = useMedia(MOBILE);
 
   useEffect(() => {
-    document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+    document.documentElement.lang = LOCALE[lang];
     document.title = t('doc.title');
   }, [lang, t]);
 
@@ -47,7 +47,7 @@ function LangToggle() {
   return (
     <div className="hud-lang" role="group" aria-label={t('lang.label')}>
       <Segmented<Lang>
-        options={[{ value: 'en', label: t('lang.en'), lang: 'en' }, { value: 'zh', label: t('lang.zh'), lang: 'zh-CN' }]}
+        options={[{ value: 'en', label: t('lang.en'), lang: LOCALE.en }, { value: 'zh', label: t('lang.zh'), lang: LOCALE.zh }]}
         value={lang}
         onChange={setLang}
       />
@@ -95,7 +95,6 @@ function DesktopPanels() {
     window.addEventListener('resize', measure);
     return () => { ro.disconnect(); window.removeEventListener('resize', measure); };
   }, [exploded]);
-  useEffect(() => () => useShowcase.getState().setInsets(NO_INSETS), []);
 
   useLayoutEffect(() => {
     if (phase !== 'fit') return;

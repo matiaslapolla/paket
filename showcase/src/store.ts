@@ -7,13 +7,15 @@ export type ViewName = 'iso' | 'front' | 'side' | 'top';
 export type Finish = 'matte' | 'gloss' | 'metal';
 export type Lang = 'en' | 'zh';
 
-export const COLORWAYS: Record<string, Palette> = {
+export const COLORWAYS = {
   senda: DEFAULT_PALETTE,
   ember: { body: '#f08a3c', shade: '#8a3c14', visor: '#14100c', eye: '#fff1e0', glow: '#ffd27a' },
   moss: { body: '#8fbf5a', shade: '#3f6a24', visor: '#0e130a', eye: '#effae0', glow: '#d6f59a' },
   ink: { body: '#2b2f36', shade: '#14171b', visor: '#05070a', eye: '#7fe3e6', glow: '#24c1c7' },
   snow: { body: '#e8ecf0', shade: '#9aa6b2', visor: '#11161c', eye: '#24c1c7', glow: '#7fe3e6' },
-};
+} satisfies Record<string, Palette>;
+export type Colorway = keyof typeof COLORWAYS;
+export type Flag = 'ortho' | 'turntable' | 'exploded' | 'showDims' | 'showSeams';
 
 export const PITCH_RANGE = { min: 2, max: 12, step: 0.5 } as const;
 
@@ -46,11 +48,11 @@ export interface ShowcaseState {
   setMaterial(m: MaterialId): void;
   setPitch(mm: number): void;
   setView(v: ViewName): void;
-  toggle(k: 'ortho' | 'turntable' | 'exploded' | 'showDims' | 'showSeams'): void;
+  toggle(k: Flag): void;
   setInsets(i: Insets): void;
 }
 
-const reducedMotion = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+export const reducedMotion = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 const initialLang: Lang = typeof navigator !== 'undefined' && navigator.language?.toLowerCase().startsWith('zh') ? 'zh' : 'en';
 
 /** Shareable starting state, e.g. `?lang=zh&mode=prototype&finish=metal&colorway=ember&pitch=6&view=front&exploded`. */
@@ -67,7 +69,7 @@ function fromUrl(): Partial<ShowcaseState> {
     material: pick('material', ['abs', 'pla', 'resin', 'zinc'] as const),
     view: pick('view', ['iso', 'front', 'side', 'top'] as const),
     pitch: pitch >= PITCH_RANGE.min && pitch <= PITCH_RANGE.max ? pitch : undefined,
-    palette: colorway && colorway in COLORWAYS ? COLORWAYS[colorway] : undefined,
+    palette: colorway && Object.hasOwn(COLORWAYS, colorway) ? COLORWAYS[colorway as Colorway] : undefined,
     exploded: q.has('exploded') || undefined,
     ortho: q.has('ortho') || undefined,
   };

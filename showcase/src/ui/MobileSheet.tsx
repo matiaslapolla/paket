@@ -6,7 +6,7 @@ import { CustomiseControls } from './Customise';
 import { ExportControls } from './Export';
 import { Bom, TitleBlock } from './Specs';
 import { useMedia } from './useMedia';
-import { NO_INSETS, useShowcase } from '../store';
+import { useShowcase } from '../store';
 import './MobileSheet.css';
 
 type Tab = 'motion' | 'view' | 'customise' | 'specs';
@@ -37,7 +37,6 @@ export function MobileSheet() {
     window.addEventListener('resize', measure);
     return () => window.removeEventListener('resize', measure);
   }, [open]);
-  useEffect(() => () => useShowcase.getState().setInsets(NO_INSETS), []);
 
   const pick = (k: Tab) => {
     if (open && k === tab) setOpen(false);

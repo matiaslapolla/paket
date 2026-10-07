@@ -1,10 +1,11 @@
-import { useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { ContactShadows } from '@react-three/drei';
 import * as THREE from 'three';
 import { REST_BOUNDS } from '../model/voxels';
 import { useShowcase } from '../store';
-import { INK, PAPER_DEEP, twin } from './twin';
+import { INK, PAPER_DEEP } from '../tokens';
+import { twin } from './twin';
 
 /** Where Paket meets the floor: a dashed plan outline on the drawing, a soft contact shadow on the prototype. */
 export function Footprint() {
@@ -17,6 +18,7 @@ export function Footprint() {
     line.computeLineDistances();
     return line;
   }, []);
+  useEffect(() => () => { outline.geometry.dispose(); (outline.material as THREE.Material).dispose(); }, [outline]);
   useFrame(() => {
     if (!group.current) return;
     group.current.position.x = twin.x;

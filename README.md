@@ -71,7 +71,7 @@ pet.destroy();
 | `scene` / `scenes` | the active scene and the scene dictionary (number keys use its keys) | empty |
 | `draggable` | drag with mouse or touch, release with momentum | `true` |
 | `pokeOnClick` | a click without a drag = jelly | `true` |
-| `keyboard` | `false`, or `{ target: 'host' \| 'window', map, extras }` | `{ target: 'host' }` |
+| `keyboard` | `false`, or `{ target: 'host' \| 'window', map, extras }`; on `window` it ignores keys typed into form fields and leaves Space to a focused button or link | `{ target: 'host' }` |
 | `start` | initial `x`, `y`, `facing` | `x: 24`, on the ground |
 | `reducedMotion` | turns off blinking and the scene `tick` | follows `prefers-reduced-motion` |
 | `onState`, `onEvent` | callbacks | — |

@@ -1,11 +1,10 @@
 import { useShallow } from 'zustand/react/shallow';
-import { useShowcase, type RenderMode, type ViewName } from '../store';
+import { useShowcase, type Flag, type RenderMode, type ViewName } from '../store';
 import { useT, type I18nKey } from '../i18n';
 import { Group, Segmented, Switch } from './controls';
 
 const RENDER_MODES: [RenderMode, I18nKey][] = [['blueprint', 'render.blueprint'], ['prototype', 'render.prototype'], ['hybrid', 'render.hybrid']];
 const VIEWS: [ViewName, I18nKey][] = [['iso', 'view.iso'], ['front', 'view.front'], ['side', 'view.side'], ['top', 'view.top']];
-type Flag = 'ortho' | 'turntable' | 'exploded' | 'showDims' | 'showSeams';
 const FLAGS: [Flag, I18nKey][] = [
   ['ortho', 'toggle.ortho'], ['turntable', 'toggle.turntable'], ['exploded', 'toggle.exploded'],
   ['showDims', 'toggle.dims'], ['showSeams', 'toggle.seams'],

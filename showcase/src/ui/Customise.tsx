@@ -1,23 +1,15 @@
-import { useId, useMemo } from 'react';
+import { useId } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import type { Palette } from '../../../src/sprite';
-import { COLORWAYS, PITCH_RANGE, useShowcase, type Finish } from '../store';
-import { modelStats, type MaterialId, type PaletteKey } from '../model/voxels';
-import { mm, useT, type I18nKey } from '../i18n';
+import { COLORWAYS, PITCH_RANGE, useShowcase, type Colorway, type Finish } from '../store';
+import { DENSITY, PALETTE_KEYS, type MaterialId } from '../model/voxels';
+import { mm, useT } from '../i18n';
+import { useOverallSize } from './Specs';
 import { Group, Segmented } from './controls';
 import './Customise.css';
 
-export const COLOUR_TEXT: Record<PaletteKey, I18nKey> = {
-  body: 'colour.body', shade: 'colour.shade', visor: 'colour.visor', eye: 'colour.eye', glow: 'colour.glow',
-};
-export const FINISH_TEXT: Record<Finish, I18nKey> = { matte: 'finish.matte', gloss: 'finish.gloss', metal: 'finish.metal' };
-export const MATERIAL_TEXT: Record<MaterialId, I18nKey> = {
-  abs: 'material.abs', pla: 'material.pla', resin: 'material.resin', zinc: 'material.zinc',
-};
-const COLOURWAY_TEXT: Record<string, I18nKey> = {
-  senda: 'colourway.senda', ember: 'colourway.ember', moss: 'colourway.moss', ink: 'colourway.ink', snow: 'colourway.snow',
-};
-const PALETTE_KEYS = Object.keys(COLOUR_TEXT) as PaletteKey[];
+const FINISHES: Finish[] = ['matte', 'gloss', 'metal'];
+const MATERIALS = Object.keys(DENSITY) as MaterialId[];
 
 /** `<input type="color">` only accepts lowercase #rrggbb. */
 function hex6(c: string) {
@@ -33,41 +25,41 @@ export function CustomiseControls() {
     palette: s.palette, finish: s.finish, material: s.material, pitch: s.pitch,
     setPalette: s.setPalette, setFinish: s.setFinish, setMaterial: s.setMaterial, setPitch: s.setPitch,
   })));
-  const size = useMemo(() => modelStats(s.pitch, s.material).sizeMm, [s.pitch, s.material]);
+  const overall = useOverallSize();
 
   return (
     <>
-      <Group label={t('custom.colourway')}>
-        <div className="colourways">
+      <Group label={t('custom.colorway')}>
+        <div className="colorways">
           {Object.entries(COLORWAYS).map(([key, p]) => (
-            <button key={key} type="button" className="btn colourway" aria-pressed={samePalette(s.palette, p)} onClick={() => s.setPalette(p)}>
-              <span className="colourway-strip" aria-hidden="true">
+            <button key={key} type="button" className="btn colorway" aria-pressed={samePalette(s.palette, p)} onClick={() => s.setPalette(p)}>
+              <span className="colorway-strip" aria-hidden="true">
                 {(['body', 'shade', 'eye'] as const).map(k => <span key={k} style={{ background: p[k] }} />)}
               </span>
-              <span className="colourway-name">{COLOURWAY_TEXT[key] ? t(COLOURWAY_TEXT[key]) : key}</span>
+              <span className="colorway-name">{t(`colorway.${key as Colorway}`)}</span>
             </button>
           ))}
         </div>
       </Group>
 
-      <Group label={t('custom.colours')} hideLabel>
-        <div className="colours">
+      <Group label={t('custom.colors')} hideLabel>
+        <div className="colors">
           {PALETTE_KEYS.map(k => (
-            <label key={k} className="colour">
-              <span className="colour-name">{t(COLOUR_TEXT[k])}</span>
+            <label key={k} className="color">
+              <span className="color-name">{t(`color.${k}`)}</span>
               <input type="color" value={hex6(s.palette[k])} onChange={e => s.setPalette({ [k]: e.target.value })} />
-              <span className="colour-hex tabular">{hex6(s.palette[k]).toUpperCase()}</span>
+              <span className="color-hex tabular">{hex6(s.palette[k]).toUpperCase()}</span>
             </label>
           ))}
         </div>
       </Group>
 
       <Group label={t('custom.finish')}>
-        <Segmented options={(Object.keys(FINISH_TEXT) as Finish[]).map(value => ({ value, label: t(FINISH_TEXT[value]) }))} value={s.finish} onChange={s.setFinish} />
+        <Segmented options={FINISHES.map(value => ({ value, label: t(`finish.${value}`) }))} value={s.finish} onChange={s.setFinish} />
       </Group>
 
       <Group label={t('custom.material')}>
-        <Segmented options={(Object.keys(MATERIAL_TEXT) as MaterialId[]).map(value => ({ value, label: t(MATERIAL_TEXT[value]) }))} value={s.material} onChange={s.setMaterial} />
+        <Segmented options={MATERIALS.map(value => ({ value, label: t(`material.${value}`) }))} value={s.material} onChange={s.setMaterial} />
       </Group>
 
       <div className="field">
@@ -86,8 +78,8 @@ export function CustomiseControls() {
           onChange={e => s.setPitch(Number(e.target.value))}
         />
         <div className="field-row overall">
-          <span className="field-label">{t('custom.overall')} {t('dim.width')} × {t('dim.height')} × {t('dim.depth')}</span>
-          <span className="tabular">{mm(size.w)} × {mm(size.h)} × {mm(size.d)} {t('unit.mm')}</span>
+          <span className="field-label">{overall.label}</span>
+          <span className="tabular">{overall.value}</span>
         </div>
       </div>
     </>

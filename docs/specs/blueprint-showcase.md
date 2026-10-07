@@ -11,7 +11,8 @@ in millimetres and download, presented as the technical drawing a factory actual
 | Decision | Choice | Why |
 | --- | --- | --- |
 | Where | `showcase/`, its own Vite app with its own `package.json` | The library stays dependency-free; the showcase can pull in WebGL without touching it. |
-| 3D stack | three.js through React Three Fiber, drei (CameraControls, Html, Grid, Lightformer environment), `@react-three/postprocessing` | The most mature web 3D stack; React matches the library's own wrapper. |
+| 3D stack | three.js through React Three Fiber, drei (CameraControls, Grid, Lightformer environment), `@react-three/postprocessing` | The most mature web 3D stack; React matches the library's own wrapper. |
+| Labels | A plain DOM layer over the canvas, each label projected from its 3D anchor every frame (`scene/Label.tsx`) | drei's `Html` left its portal empty when its mount target changed after the first render; the labels are text only. |
 | State | zustand | One small store shared by the WebGL scene and the HUD without prop drilling. |
 | The model | Generated at runtime from `src/sprite.ts`: each sprite pixel becomes a voxel column with a per-part depth profile | One source of truth. Editing the sprite edits the 3D model and the STL. No hand modelling. |
 | Motion | The real 2D engine (`createPaket`) runs in a HUD panel and the 3D twin mirrors it every frame through a new `getPose()` API | Presets, effects, keyboard and drag come from the product itself instead of a second implementation. See ADR 0001. |
@@ -31,10 +32,11 @@ in millimetres and download, presented as the technical drawing a factory actual
 ## Features
 
 1. Full-viewport WebGL scene on a blueprint sheet: blue paper, floor grid in voxel units, sheet border, title block.
-2. Intro: the flat sprite is drawn in lines, then extrudes into the voxel twin while the camera moves from the front
-   view to the iso view. Under `prefers-reduced-motion` the final state renders directly.
+2. Intro: the flat sprite is drawn (in lines, in Blueprint and Hybrid), then extrudes into the voxel twin while the
+   camera moves from the front view to the iso view. Under `prefers-reduced-motion` the final state renders directly.
 3. Render modes: **Blueprint** (white feature lines, dashed hidden lines, faint tinted fill), **Prototype** (solid
-   painted plastic), **Hybrid** (solid plus ink lines).
+   painted plastic), **Hybrid** (solid plus dark drafting lines). A voxel-seam overlay can be toggled on the lines.
+   Clicking the twin pokes it (jelly), as clicking the 2D sprite does.
 4. Views: ISO, FRONT, SIDE, TOP; perspective ↔ orthographic-like via a dolly zoom; turntable.
 5. Live motion mirrored from the engine: all `PRESETS`, all effects (disassemble, blackhole, jelly, glitch, reset),
    arrow keys / WASD / space, drag-and-throw on the 2D source panel, scene switching with platforms in 3D.
@@ -43,7 +45,9 @@ in millimetres and download, presented as the technical drawing a factory actual
    material (ABS, PLA, resin, zinc alloy) for the mass estimate, voxel pitch in mm.
 8. Dimensions: overall width, height, depth with extension lines and mm labels that follow the pitch.
 9. Export: STL (binary, default pose, mm), GLB (coloured, one node per part), PNG of the current view.
-10. Responsive: usable at 375 px wide; HUD collapses into a bottom sheet.
+10. Responsive: usable at 375 px wide; HUD collapses into a bottom sheet. The camera frames the model in the part of
+    the viewport the HUD leaves free.
+11. Shareable starting state: `?lang=zh&mode=prototype&finish=metal&colorway=ember&pitch=6&view=front&exploded&ortho`.
 
 ## Out of scope
 

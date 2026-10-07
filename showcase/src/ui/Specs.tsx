@@ -2,14 +2,12 @@ import { useMemo, type ReactNode } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import { useShowcase, type Lang } from '../store';
 import { modelStats } from '../model/voxels';
-import { mm, useT } from '../i18n';
-import { COLOUR_TEXT, FINISH_TEXT, MATERIAL_TEXT } from './Customise';
+import { LOCALE, mm, useT } from '../i18n';
 import './Specs.css';
 
-const locale = (lang: Lang) => (lang === 'zh' ? 'zh-CN' : 'en-US');
 const formats = (lang: Lang) => ({
-  int: new Intl.NumberFormat(locale(lang), { maximumFractionDigits: 0 }).format,
-  dec: new Intl.NumberFormat(locale(lang), { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format,
+  int: new Intl.NumberFormat(LOCALE[lang], { maximumFractionDigits: 0 }).format,
+  dec: new Intl.NumberFormat(LOCALE[lang], { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format,
 });
 
 function useStats() {
@@ -17,6 +15,17 @@ function useStats() {
   const stats = useMemo(() => modelStats(s.pitch, s.material), [s.pitch, s.material]);
   const fmt = useMemo(() => formats(s.lang), [s.lang]);
   return { ...s, stats, fmt };
+}
+
+/** "Overall W × H × D" and its value in mm, as the title block and the pitch control both show it. */
+export function useOverallSize() {
+  const t = useT();
+  const { stats } = useStats();
+  const { w, h, d } = stats.sizeMm;
+  return {
+    label: `${t('custom.overall')} ${t('dim.width')} × ${t('dim.height')} × ${t('dim.depth')}`,
+    value: `${mm(w)} × ${mm(h)} × ${mm(d)} ${t('unit.mm')}`,
+  };
 }
 
 type CellId = 'project' | 'drawing' | 'drawnBy' | 'licence' | 'overall' | 'pitch' | 'parts' | 'voxels' | 'volume' | 'mass' | 'material' | 'finish';
@@ -28,7 +37,7 @@ const NARROW_ORDER: CellId[] = ['project', 'drawing', 'drawnBy', 'overall', 'pit
 export function TitleBlock({ wide }: { wide: boolean }) {
   const t = useT();
   const { pitch, material, finish, stats, fmt } = useStats();
-  const { w, h, d } = stats.sizeMm;
+  const overall = useOverallSize();
   const unit = t('unit.mm');
 
   const cells: Record<CellId, { label: ReactNode; value: ReactNode; data?: boolean }> = {
@@ -36,17 +45,14 @@ export function TitleBlock({ wide }: { wide: boolean }) {
     drawing: { label: t('tb.drawing'), value: t('tb.drawingValue') },
     drawnBy: { label: t('tb.drawnBy'), value: t('tb.author') },
     licence: { label: t('tb.licence'), value: t('tb.licenceValue') },
-    overall: {
-      label: `${t('custom.overall')} ${t('dim.width')} × ${t('dim.height')} × ${t('dim.depth')}`,
-      value: `${mm(w)} × ${mm(h)} × ${mm(d)} ${unit}`, data: true,
-    },
+    overall: { ...overall, data: true },
     pitch: { label: t('custom.pitch'), value: `${mm(pitch)} ${unit}`, data: true },
     parts: { label: t('tb.parts'), value: fmt.int(stats.parts.length), data: true },
     voxels: { label: t('tb.voxels'), value: fmt.int(stats.voxels), data: true },
     volume: { label: t('tb.volume'), value: `${fmt.dec(stats.volumeCm3)} ${t('unit.cm3')}`, data: true },
     mass: { label: t('tb.mass'), value: `${fmt.dec(stats.massG)} ${t('unit.g')}`, data: true },
-    material: { label: t('tb.material'), value: t(MATERIAL_TEXT[material]) },
-    finish: { label: t('custom.finish'), value: t(FINISH_TEXT[finish]) },
+    material: { label: t('tb.material'), value: t(`material.${material}`) },
+    finish: { label: t('custom.finish'), value: t(`finish.${finish}`) },
   };
 
   return (
@@ -77,7 +83,7 @@ export function Bom() {
             <th scope="col" className="num">{t('bom.voxels')}</th>
             <th scope="col" className="num">{t('bom.volume')}</th>
             <th scope="col" className="num">{t('bom.mass')}</th>
-            <th scope="col">{t('bom.colours')}</th>
+            <th scope="col">{t('bom.colors')}</th>
           </tr>
         </thead>
         <tbody>
@@ -89,8 +95,8 @@ export function Bom() {
               <td className="num tabular">{fmt.dec(p.volumeCm3)}</td>
               <td className="num tabular">{fmt.dec(p.massG)}</td>
               <td>
-                <span className="swatches" role="img" aria-label={p.keys.map(k => t(COLOUR_TEXT[k])).join(', ')}>
-                  {p.keys.map(k => <span key={k} title={t(COLOUR_TEXT[k])} style={{ background: palette[k] }} />)}
+                <span className="swatches" role="img" aria-label={p.keys.map(k => t(`color.${k}`)).join(', ')}>
+                  {p.keys.map(k => <span key={k} title={t(`color.${k}`)} style={{ background: palette[k] }} />)}
                 </span>
               </td>
             </tr>
