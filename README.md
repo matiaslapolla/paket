@@ -80,7 +80,11 @@ pet.destroy();
 ## Controller
 
 `setInput`, `press`, `release`, `jump`, `face`, `teleport`, `setScene`, `getScene`, `play`, `stop`,
-`effect`, `setPalette`, `setDraggable`, `getState`, `destroy`, and `svg` (the element, in case you want to style it).
+`effect`, `setPalette`, `setDraggable`, `getState`, `getPose`, `destroy`, and `svg` (the element, in case you want to style it).
+
+`getPose()` returns what the last frame drew: each part's visible frame and effect offset, plus position, facing,
+squash and stretch, rotation, scale and opacity. Another renderer can mirror the engine with it; the 3D showcase in
+`showcase/` does exactly that.
 
 ## Effects
 

@@ -80,6 +80,16 @@ export interface PaketState {
   state: StateName; onGround: boolean; jumpsUsed: number;
   preset: string | null; effect: EffectName | null;
 }
+/** What the last render drew, so other renderers (canvas, WebGL) can mirror the engine. Sprite units, degrees. */
+export interface PartPose { frame: string; dx: number; dy: number; rot: number }
+export interface PaketPose {
+  parts: Record<PartName, PartPose>;
+  x: number; y: number; facing: 1 | -1;
+  /** squash and stretch, applied from the feet */
+  sx: number; sy: number;
+  /** global rotation (blackhole + double-jump spin) around the sprite centre */
+  rot: number; scale: number; opacity: number;
+}
 export type PaketEvent =
   | { type: 'jump'; double: boolean } | { type: 'land'; impact: number } | { type: 'grab' } | { type: 'drop'; vx: number; vy: number }
   | { type: 'poke' } | { type: 'presetStart'; name: string } | { type: 'presetEnd'; name: string }
@@ -101,6 +111,7 @@ export interface PaketController {
   setPalette(p: Partial<Palette>): void;
   setDraggable(on: boolean): void;
   getState(): PaketState;
+  getPose(): PaketPose;
   destroy(): void;
 }
 
@@ -399,6 +410,7 @@ export function createPaket(host: HTMLElement, opts: PaketOptions = {}): PaketCo
   }
 
   /* ---- render ---- */
+  let pose: PaketPose;
   function render() {
     const po = poses();
     show(parts.head, po.eyes); show(parts.torso, 'base');
@@ -406,6 +418,10 @@ export function createPaket(host: HTMLElement, opts: PaketOptions = {}): PaketCo
 
     const sy = (P.state === 'crouch' ? 0.82 : 1) * (1 + P.jelly.s);
     const sx = 1 / Math.sqrt(Math.max(0.2, sy));
+    pose = {
+      parts: Object.fromEntries((Object.entries(parts) as [PartName, PartNode][]).map(([n, p]) => [n, { frame: p.current, dx: p.fx.dx, dy: p.fx.dy, rot: p.fx.rot }])) as Record<PartName, PartPose>,
+      x: P.x, y: P.y, facing: P.facing, sx, sy, rot: P.rot + P.spin, scale: P.scale, opacity: P.opacity,
+    };
     const px = Math.round(P.x), py = Math.round(P.y);
     // Orden: ir al centro del sprite → giro global → bajar a los pies → flip + gelatina (escalan desde los pies) → sprite.
     charG.setAttribute('transform',
@@ -556,6 +572,7 @@ export function createPaket(host: HTMLElement, opts: PaketOptions = {}): PaketCo
     },
     setDraggable(on) { draggable = on; hit.style.cursor = on ? 'grab' : 'default'; },
     getState,
+    getPose: () => pose,
     destroy() {
       destroyed = true; cancelAnimationFrame(raf);
       if (kbTarget) { kbTarget.removeEventListener('keydown', onKeyDown); kbTarget.removeEventListener('keyup', onKeyUp); window.removeEventListener('blur', onBlur); }
@@ -564,6 +581,7 @@ export function createPaket(host: HTMLElement, opts: PaketOptions = {}): PaketCo
   };
 
   setScene(scene);
+  render();
   raf = requestAnimationFrame(loop);
   return api;
 }
