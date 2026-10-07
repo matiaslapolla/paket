@@ -523,7 +523,9 @@ export function createPaket(host: HTMLElement, opts: PaketOptions = {}): PaketCo
   if (kb && kb.target !== 'window' && !host.hasAttribute('tabindex')) host.setAttribute('tabindex', '0');
   const onKeyDown = (e: Event) => {
     const ev = e as KeyboardEvent;
-    if (kb?.target === 'window' && (ev.target as HTMLElement)?.tagName?.match(/INPUT|TEXTAREA|SELECT/)) return;
+    const t = ev.target as HTMLElement | null;
+    // listening on window: leave typing to form fields, and Space to the button or link it would activate
+    if (kb?.target === 'window' && (t?.tagName?.match(/INPUT|TEXTAREA|SELECT/) || (ev.key === ' ' && t?.closest?.('button, a[href], summary, [role="button"], [role="tab"], [role="switch"]')))) return;
     if (kb?.extras !== false) {
       if (ev.key === 'Escape') { stop(); return; }
       const sc = scenes[ev.key]; if (sc) { setScene(sc); return; }
