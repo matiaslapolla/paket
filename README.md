@@ -17,6 +17,10 @@ demo/demo.ts       the playground page, built on the public API
 showcase/          the 3D blueprint showcase (its own Vite app)
 ```
 
+![Paket's voxel twin on a blueprint sheet: the 8-bit sprite extrudes into 3D, runs a preset, disassembles, then shows the exploded assembly with its bill of materials in English and Chinese](docs/media/showcase.gif)
+
+The [3D showcase](#3d-showcase): the same engine driving a voxel model extruded from the sprite.
+
 ## React
 
 ```tsx
