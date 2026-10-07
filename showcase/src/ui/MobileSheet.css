@@ -73,6 +73,8 @@
   padding: 14px 16px 20px;
   overflow-y: auto;
   overscroll-behavior: contain;
+  /* focus moved by keyboard stops short of the sheet's edges */
+  scroll-padding: 12px 0;
   transition: opacity var(--dur) var(--ease-out);
 }
 .hud .sheet[data-open='false'] .sheet-body { opacity: 0; }

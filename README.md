@@ -133,6 +133,7 @@ and Simplified Chinese; no third-party requests at runtime.
 pnpm --dir showcase install
 pnpm --dir showcase dev        # http://localhost:5173
 pnpm --dir showcase build      # static site in showcase/dist
+pnpm --dir showcase smoke      # after build: headless Chromium checks requests, exports, 中文 HUD, 375 px layout
 ```
 
 The starting state can be linked: `?lang=zh&mode=prototype&finish=metal&colorway=ember&pitch=6&view=front&exploded&ortho`.
